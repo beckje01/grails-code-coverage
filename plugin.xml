@@ -1,3 +1,9 @@
-<plugin name='code-coverage' version='0.2'>
+<plugin name='code-coverage' version='0.3'>
+  <author>Mike Hugo</author>
+  <title>Generates Code Coverage reports</title>
+  <description>
+		Creates Code Coverage reports for your code
+	</description>
+  <documentation>http://docs.codehaus.org/display/GRAILS/Test+Code+Coverage+Plugin</documentation>
   <resources />
 </plugin>

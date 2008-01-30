@@ -1,7 +1,14 @@
 
 class CodeCoverageGrailsPlugin {
-    def version = 0.2
+    def version = 0.3
 	def dependsOn = [core:'1.0-final-SNAPSHOT'] 
+	def author = "Mike Hugo"
+	def title = "Generates Code Coverage reports"
+	def description = """
+		Creates Code Coverage reports for your code
+	"""
+	def documentation = "http://docs.codehaus.org/display/GRAILS/Test+Code+Coverage+Plugin"
+
     def doWithSpring = {
         // TODO Implement runtime spring config (optional)
     }
