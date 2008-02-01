@@ -1,4 +1,4 @@
-<plugin name='code-coverage' version='0.3'>
+<plugin name='code-coverage' version='0.4'>
   <author>Mike Hugo</author>
   <title>Generates Code Coverage reports</title>
   <description>
