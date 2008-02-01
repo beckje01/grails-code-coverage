@@ -1,6 +1,6 @@
 
 class CodeCoverageGrailsPlugin {
-    def version = 0.4
+    def version = '0.4.1'
 	def dependsOn = [core:'1.0-final-SNAPSHOT'] 
 	def author = "Mike Hugo"
 	def title = "Generates Code Coverage reports"

@@ -50,9 +50,9 @@ target ('default': "Test App with Cobertura") {
 }
 
 target(cleanup:"Remove old files") {
-    Ant.delete(file:"${dataFile}")
-    Ant.delete(dir:testDirPath)
-    Ant.delete(dir:coverageReportDir)
+    Ant.delete(file:"${dataFile}", quiet:true)
+    Ant.delete(dir:testDirPath, quiet:true)
+    Ant.delete(dir:coverageReportDir, quiet:true)
 }
 
 target(instrumentTests:"Instruments the compiled test cases") {
