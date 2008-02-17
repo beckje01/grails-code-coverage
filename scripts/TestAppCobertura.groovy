@@ -1,7 +1,6 @@
-import net.sourceforge.cobertura.coveragedata.ProjectData
-
 Ant.property(environment:"env")
-grailsHome = Ant.antProject.properties."env.GRAILS_HOME"  
+grailsHome = Ant.antProject.properties."env.GRAILS_HOME"
+System.setProperty('cobertura.code.coverage', 'on')
 
 includeTargets << new File ( "${grailsHome}/scripts/Package.groovy" )
 includeTargets << new File ( "${grailsHome}/scripts/Bootstrap.groovy" )
@@ -39,7 +38,7 @@ target ('default': "Test App with Cobertura") {
     }
 
     Ant.path(id: "cobertura.classpath"){
-        fileset(dir:"${pluginHome}/lib"){
+        fileset(dir:"${pluginHome}/lib/cobertura"){
             include(name:"*.jar")
         }
     }
@@ -55,9 +54,7 @@ target ('default': "Test App with Cobertura") {
     instrumentTests()
     testApp()
 
-    //per the Cobertura FAQ, force save of coverage data before JVM exits...
-    //see http://cobertura.sourceforge.net/faq.html "Cobertura only writes the coverage data file when..."
-    ProjectData.saveGlobalProjectData()
+	flushCoverageData()
 
     coberturaReport()
     Ant.delete(dir:testDirPath)
@@ -74,7 +71,7 @@ target(cleanup:"Remove old files") {
 }
 
 target(instrumentTests:"Instruments the compiled test cases") {
-    Ant.taskdef (  classpath : 'cobertura.classpath', resource:"tasks.properties" )
+    Ant.taskdef (  classpathRef : 'cobertura.classpath', resource:"tasks.properties" )
     try {
         //for now, instrument classes in the same directory grails creates for testClasses
         //TODO - need to figure out how to put cobertura instrumented classes in different dir
@@ -96,10 +93,10 @@ target(instrumentTests:"Instruments the compiled test cases") {
 
 target(coberturaReport:"Generate Cobertura Reports") {
     Ant.mkdir(dir:"${coverageReportDir}")
-    Ant.taskdef (  classpath : 'cobertura.classpath', resource:"tasks.properties" )
+    Ant.taskdef (  classpathRef : 'cobertura.classpath', resource:"tasks.properties" )
     try {
         Ant.'cobertura-report'(destDir:"${coverageReportDir}", datafile:"${dataFile}", format:reportFormat){
-            //load all these dirs independently so the dir structure is flattened, 
+            //load all these dirs independently so the dir structure is flattened,
             //otherwise the source isn't found for the reports
             fileset(dir:"${basedir}/grails-app/controllers")
             fileset(dir:"${basedir}/grails-app/domain")
@@ -119,4 +116,17 @@ target(coberturaReport:"Generate Cobertura Reports") {
 target('exit':"override exit") { code ->
     // Save the exit code.
     testAppExitCode = code
+}
+
+def flushCoverageData() {
+	//per the Cobertura FAQ, force save of coverage data before JVM exits...
+    //see http://cobertura.sourceforge.net/faq.html "Cobertura only writes the coverage data file when..."
+    try {
+        def saveClass = Class.forName('net.sourceforge.cobertura.coveragedata.ProjectData')
+        def saveMethod = saveClass.getDeclaredMethod("saveGlobalProjectData", new Class[0])
+        saveMethod.invoke(null,new Object[0]);
+    } catch (Throwable t) {
+		event("StatusFinal", ["Unable to flush Cobertura code coverage data."])
+		exit(1)
+	}
 }

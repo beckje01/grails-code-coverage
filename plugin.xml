@@ -1,9 +1,10 @@
-<plugin name='code-coverage' version='0.5'>
+<plugin name='code-coverage' version='0.6'>
   <author>Mike Hugo</author>
   <authorEmail>mike@piragua.com</authorEmail>
   <title>Generates Code Coverage reports</title>
   <description>
-		Creates Code Coverage reports for your code
+		Creates Code Coverage reports for your code.
+        Special thanks to Peter Ledbrook and Jeff Kunkle for contributions to this plugin.
 	</description>
   <documentation>http://grails.org/Test+Code+Coverage+Plugin</documentation>
   <resources />
