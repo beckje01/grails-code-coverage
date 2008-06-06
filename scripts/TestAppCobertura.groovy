@@ -30,9 +30,19 @@ dataFile = "cobertura.ser"
 target ('default': "Test App with Cobertura") {
     depends(classpath, checkVersion, configureProxy)
 
+    packageApp()
+
     // Check whether the project defines its own directory for test
     // reports.
     coverageReportDir = "${config.grails.testing.reports.destDir ?: testDir}/cobertura"
+
+    // Add any custom exclusions defined by the project.
+    // this needs to happen AFTER packageApp so config.groovy is properly loaded
+    if (config.coverage.exclusions) {
+      codeCoverageExclusionList += config.coverage.exclusions
+    }
+
+    cleanup()
 
     Ant.path(id: "cobertura.classpath"){
         fileset(dir:"${pluginHome}/lib/cobertura"){
@@ -45,16 +55,6 @@ target ('default': "Test App with Cobertura") {
         args -= '-xml'
     }
 
-    cleanup()
-    packageApp()
-
-    // Add any custom exclusions defined by the project.
-    // this needs to happen AFTER packageApp so config.groovy is properly loaded
-    if (config.coverage.exclusions) {
-      codeCoverageExclusionList += config.coverage.exclusions
-    }
-
-    
     compileTests()
     instrumentTests()
     testApp()

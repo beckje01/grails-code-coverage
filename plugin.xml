@@ -1,4 +1,4 @@
-<plugin name='code-coverage' version='0.8'>
+<plugin name='code-coverage' version='0.8.1'>
   <author>Mike Hugo</author>
   <authorEmail>mike@piragua.com</authorEmail>
   <title>Generates Code Coverage reports</title>
