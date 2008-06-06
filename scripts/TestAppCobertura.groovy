@@ -1,3 +1,5 @@
+scriptEnv = "test"
+
 Ant.property(environment:"env")
 grailsHome = Ant.antProject.properties."env.GRAILS_HOME"
 System.setProperty('cobertura.code.coverage', 'on')
@@ -32,11 +34,6 @@ target ('default': "Test App with Cobertura") {
     // reports.
     coverageReportDir = "${config.grails.testing.reports.destDir ?: testDir}/cobertura"
 
-    // Add any custom exclusions defined by the project.
-    if (config.coverage.exclusions) {
-      codeCoverageExclusionList += config.coverage.exclusions
-    }
-
     Ant.path(id: "cobertura.classpath"){
         fileset(dir:"${pluginHome}/lib/cobertura"){
             include(name:"*.jar")
@@ -50,6 +47,14 @@ target ('default': "Test App with Cobertura") {
 
     cleanup()
     packageApp()
+
+    // Add any custom exclusions defined by the project.
+    // this needs to happen AFTER packageApp so config.groovy is properly loaded
+    if (config.coverage.exclusions) {
+      codeCoverageExclusionList += config.coverage.exclusions
+    }
+
+    
     compileTests()
     instrumentTests()
     testApp()
