@@ -21,7 +21,7 @@ codeCoverageExclusionList = [
     "CodeCoverageGrailsPlugin*" ]
 
 // We need to save the exit code from the 'testApp' target.
-testAppExitCode = 0
+def testAppExitCode = 0
 
 //TODO - would like this to work (put file in tmp dir), but cobertura creates a cobertura.ser in the running dir anyway...
 //dataFile = "${grailsTmp}/cobertura.ser"
