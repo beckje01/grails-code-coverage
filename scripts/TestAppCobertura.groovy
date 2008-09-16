@@ -12,7 +12,7 @@ pluginHome = codeCoveragePluginDir
 reportFormat = 'html'
 codeCoverageExclusionList = [
     "**/*BootStrap*",
-    "**/*Config*",
+    "Config*",
     "**/*DataSource*",
     "**/*resources*",
     "**/*UrlMappings*",
