@@ -110,6 +110,11 @@ target(coberturaReport:"Generate Cobertura Reports") {
             fileset(dir:"${basedir}/grails-app/utils")
             fileset(dir:"${basedir}/src/groovy")
             fileset(dir:"${basedir}/src/java")
+            if (config.coverage?.sourceInclusions){
+                config.coverage.sourceInclusions.each {
+                    fileset(dir:"${basedir}/${it}")
+                }
+            }
         }
     }
     catch(Exception e) {
