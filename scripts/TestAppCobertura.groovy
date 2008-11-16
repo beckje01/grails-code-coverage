@@ -17,6 +17,8 @@ codeCoverageExclusionList = [
     "**/*resources*",
     "**/*UrlMappings*",
     "**/*Tests*",
+    "**/grails/test/**",
+    "**/org/codehaus/groovy/grails/**",
     "**/PreInit*",
     "CodeCoverageGrailsPlugin*" ]
 
