@@ -10,6 +10,7 @@ includeTargets << new File ( "${grailsHome}/scripts/TestApp.groovy" )
 
 pluginHome = codeCoveragePluginDir
 reportFormat = 'html'
+postProcessReports = false
 codeCoverageExclusionList = [
     "**/*BootStrap*",
     "Config*",
@@ -57,6 +58,11 @@ target ('default': "Test App with Cobertura") {
         args -= '-xml'
     }
 
+    if (args?.indexOf('-nopost') > -1) {
+        postProcessReports = false
+        args -= '-nopost'
+    }
+
     compileTests()
     instrumentTests()
     testApp()
@@ -64,6 +70,7 @@ target ('default': "Test App with Cobertura") {
 	flushCoverageData()
 
     coberturaReport()
+    if (postProcessReports) {postProcessReports()}
     Ant.delete(dir:testDirPath)
     event("StatusFinal", ["Cobertura Code Coverage Complete (view reports in: ${coverageReportDir})"])
 
@@ -123,6 +130,27 @@ target(coberturaReport:"Generate Cobertura Reports") {
        event("StatusFinal", ["Compilation Error: ${e.message}"])
        exit(1)
     }
+}
+
+target('postProcessReports': 'replace controller closure class name with action name') {
+    def startTime = new Date().time
+    def controllers = grailsApp.getArtefacts(org.codehaus.groovy.grails.commons.ControllerArtefactHandler.TYPE)
+    controllers.each {controllerClass ->
+        def closures = [:]
+        controllerClass.reference.propertyDescriptors.each {propertyDescriptor ->
+            def closure = controllerClass.getPropertyOrStaticPropertyOrFieldValue(propertyDescriptor.name, Closure)
+            if (closure) {
+                Ant.replace(dir: "${coverageReportDir}",
+                        token: ">${closure.class.name}<",
+                        value: ">${controllerClass.fullName}.${propertyDescriptor.name}<") {
+                    include(name: "${controllerClass.fullName}.html")
+                    include(name: "frame-summary*.html")
+                }
+            }
+        }
+    }
+    def endTime = new Date().time
+    println "Post processed reports in ${endTime - startTime}ms"
 }
 
 target('exit':"override exit") { code ->
