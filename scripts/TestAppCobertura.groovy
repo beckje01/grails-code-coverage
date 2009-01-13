@@ -1,6 +1,7 @@
 scriptEnv = "test"
 
 includeTargets << grailsScript("_GrailsPackage")
+includeTargets << grailsScript("_GrailsClean")
 includeTargets << grailsScript("_GrailsInit")
 includeTargets << grailsScript("_GrailsBootstrap")
 includeTargets << grailsScript("_GrailsTest")
@@ -27,10 +28,7 @@ def testAppExitCode = 0
 dataFile = "cobertura.ser"
 
 target ('testAppCobertura': "Test App with Cobertura") {
-    depends(classpath, checkVersion, configureProxy, parseArguments, bootstrap)
-
-    cleanup()
-    packageApp()
+    depends(classpath, checkVersion, configureProxy, parseArguments, cleanup, packageApp)
 
     // Check whether the project defines its own directory for test
     // reports.
@@ -68,16 +66,16 @@ target ('testAppCobertura': "Test App with Cobertura") {
     if (postProcessReports) {
 		replaceControllerClosureNamesInReports()
 	}
-    ant.delete(dir:classesDirPath)
+
     event("StatusFinal", ["Cobertura Code Coverage Complete (view reports in: ${coverageReportDir})"])
 
     // Exit the script using the code returned by 'testApp'.
     return exitCode
 }
 
-target(cleanup:"Remove old files") {
-    ant.delete(file:"${dataFile}", quiet:true)
-    ant.delete(dir:classesDirPath, quiet:true)
+target(cleanup:'Remove compiled classes and Cobertura.ser file') {
+	ant.delete(dir:classesDirPath)
+	ant.delete(file:"${dataFile}")    
 }
 
 target(instrumentClasses:"Instruments the compiled classes") {
@@ -129,6 +127,7 @@ target(coberturaReport:"Generate Cobertura Reports") {
 }
 
 target('replaceControllerClosureNamesInReports': 'replace controller closure class name with action name') {
+	depends(bootstrap)
     def startTime = new Date().time
     def controllers = grailsApp.controllerClasses
     controllers.each {controllerClass ->
@@ -160,7 +159,7 @@ def flushCoverageData() {
         def saveMethod = saveClass.getDeclaredMethod("saveGlobalProjectData", new Class[0])
         saveMethod.invoke(null,new Object[0]);
     } catch (Throwable t) {
-        println t
+		t.printStackTrace()
 		event("StatusFinal", ["Unable to flush Cobertura code coverage data."])
 		exit(1)
 	}
