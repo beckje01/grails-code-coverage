@@ -1,7 +1,11 @@
 
 class CodeCoverageGrailsPlugin {
-    def version = '0.9'
-	def dependsOn = [core:'1.0 > *'] 
+    def version = '1.1.0'
+
+//	def environments = ['test']
+	def scopes = [excludes:'war']
+	
+	def dependsOn = [core:'1.1 > *'] 
 	def author = "Mike Hugo"
 	def authorEmail = "mike@piragua.com"
 	def title = "Generates Code Coverage reports"

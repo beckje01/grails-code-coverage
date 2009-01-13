@@ -1,16 +1,12 @@
 scriptEnv = "test"
 
-Ant.property(environment:"env")
-grailsHome = Ant.antProject.properties."env.GRAILS_HOME"
-System.setProperty('cobertura.code.coverage', 'on')
+includeTargets << grailsScript("_GrailsPackage")
+includeTargets << grailsScript("_GrailsInit")
+includeTargets << grailsScript("_GrailsBootstrap")
+includeTargets << grailsScript("_GrailsTest")
 
-includeTargets << new File ( "${grailsHome}/scripts/Package.groovy" )
-includeTargets << new File ( "${grailsHome}/scripts/Bootstrap.groovy" )
-includeTargets << new File ( "${grailsHome}/scripts/TestApp.groovy" )
-
-pluginHome = codeCoveragePluginDir
 reportFormat = 'html'
-postProcessReports = false
+postProcessReports = true
 codeCoverageExclusionList = [
     "**/*BootStrap*",
     "Config*",
@@ -21,7 +17,7 @@ codeCoverageExclusionList = [
     "**/grails/test/**",
     "**/org/codehaus/groovy/grails/**",
     "**/PreInit*",
-    "CodeCoverageGrailsPlugin*" ]
+    "*GrailsPlugin*" ]
 
 // We need to save the exit code from the 'testApp' target.
 def testAppExitCode = 0
@@ -30,14 +26,15 @@ def testAppExitCode = 0
 //dataFile = "${grailsTmp}/cobertura.ser"
 dataFile = "cobertura.ser"
 
-target ('default': "Test App with Cobertura") {
-    depends(classpath, checkVersion, configureProxy)
+target ('testAppCobertura': "Test App with Cobertura") {
+    depends(classpath, checkVersion, configureProxy, parseArguments)
 
+    cleanup()
     packageApp()
 
     // Check whether the project defines its own directory for test
     // reports.
-    coverageReportDir = "${config.grails.testing.reports.destDir ?: testDir}/cobertura"
+    coverageReportDir = "${config.grails.testing.reports.destDir ?: testReportsDir}/cobertura"
 
     // Add any custom exclusions defined by the project.
     // this needs to happen AFTER packageApp so config.groovy is properly loaded
@@ -45,53 +42,52 @@ target ('default': "Test App with Cobertura") {
       codeCoverageExclusionList += config.coverage.exclusions
     }
 
-    cleanup()
+    ant.delete(dir:coverageReportDir, quiet:true)
 
-    Ant.path(id: "cobertura.classpath"){
-        fileset(dir:"${pluginHome}/lib/cobertura"){
+    ant.path(id: "cobertura.classpath"){
+        fileset(dir:"${codeCoveragePluginDir}/lib"){
             include(name:"*.jar")
         }
     }
 
-    if(args?.indexOf('-xml') >-1) {
+    if (argsMap.xml) {
         reportFormat = 'xml'
-        args -= '-xml'
     }
 
-    if (args?.indexOf('-nopost') > -1) {
+    if (argsMap.nopost) {
         postProcessReports = false
-        args -= '-nopost'
     }
 
     compileTests()
-    instrumentTests()
-    testApp()
+    instrumentClasses()
+    def exitCode = testApp()
 
 	flushCoverageData()
 
     coberturaReport()
-    if (postProcessReports) {postProcessReports()}
-    Ant.delete(dir:testDirPath)
+    if (postProcessReports) {
+		replaceControllerClosureNamesInReports()
+	}
+    ant.delete(dir:classesDirPath)
     event("StatusFinal", ["Cobertura Code Coverage Complete (view reports in: ${coverageReportDir})"])
 
     // Exit the script using the code returned by 'testApp'.
-    System.exit(testAppExitCode)
+    return exitCode
 }
 
 target(cleanup:"Remove old files") {
-    Ant.delete(file:"${dataFile}", quiet:true)
-    Ant.delete(dir:testDirPath, quiet:true)
-    Ant.delete(dir:coverageReportDir, quiet:true)
+    ant.delete(file:"${dataFile}", quiet:true)
+    ant.delete(dir:classesDirPath, quiet:true)
 }
 
-target(instrumentTests:"Instruments the compiled test cases") {
-    Ant.taskdef (  classpathRef : 'cobertura.classpath', resource:"tasks.properties" )
+target(instrumentClasses:"Instruments the compiled classes") {
+    ant.taskdef (  classpathRef : 'cobertura.classpath', resource:"tasks.properties" )
     try {
         //for now, instrument classes in the same directory grails creates for testClasses
         //TODO - need to figure out how to put cobertura instrumented classes in different dir
         //and put that dir in front of testClasses in the classpath
-        Ant.'cobertura-instrument' (datafile:"${dataFile}") {
-            fileset(dir:testDirPath) {
+        ant.'cobertura-instrument' (datafile:"${dataFile}") {
+            fileset(dir:classesDirPath) {
                 include(name:"**/*.class")
                 codeCoverageExclusionList.each { pattern ->
                     exclude(name:pattern)
@@ -100,16 +96,16 @@ target(instrumentTests:"Instruments the compiled test cases") {
         }
     }
     catch(Exception e) {
-       event("StatusFinal", ["Compilation Error: ${e.message}"])
+       event("StatusFinal", ["Error instrumenting classes: ${e.message}"])
        exit(1)
     }
 }
 
 target(coberturaReport:"Generate Cobertura Reports") {
-    Ant.mkdir(dir:"${coverageReportDir}")
-    Ant.taskdef (  classpathRef : 'cobertura.classpath', resource:"tasks.properties" )
+    ant.mkdir(dir:"${coverageReportDir}")
+    ant.taskdef (  classpathRef : 'cobertura.classpath', resource:"tasks.properties" )
     try {
-        Ant.'cobertura-report'(destDir:"${coverageReportDir}", datafile:"${dataFile}", format:reportFormat){
+        ant.'cobertura-report'(destDir:"${coverageReportDir}", datafile:"${dataFile}", format:reportFormat){
             //load all these dirs independently so the dir structure is flattened,
             //otherwise the source isn't found for the reports
             fileset(dir:"${basedir}/grails-app/controllers")
@@ -132,30 +128,29 @@ target(coberturaReport:"Generate Cobertura Reports") {
     }
 }
 
-target('postProcessReports': 'replace controller closure class name with action name') {
+target('replaceControllerClosureNamesInReports': 'replace controller closure class name with action name') {
+	depends(bootstrap)
     def startTime = new Date().time
-    def controllers = grailsApp.getArtefacts(org.codehaus.groovy.grails.commons.ControllerArtefactHandler.TYPE)
+    def controllers = grailsApp.controllerClasses
     controllers.each {controllerClass ->
         def closures = [:]
         controllerClass.reference.propertyDescriptors.each {propertyDescriptor ->
-            def closure = controllerClass.getPropertyOrStaticPropertyOrFieldValue(propertyDescriptor.name, Closure)
-            if (closure) {
-                Ant.replace(dir: "${coverageReportDir}",
-                        token: ">${closure.class.name}<",
-                        value: ">${controllerClass.fullName}.${propertyDescriptor.name}<") {
-                    include(name: "${controllerClass.fullName}.html")
+            def closureClassName = controllerClass.getPropertyOrStaticPropertyOrFieldValue(propertyDescriptor.name, Closure)?.class?.name
+            if (closureClassName) {
+				// the name in the reports is sans package; subtract the package name
+				def nameToReplace = closureClassName - "${controllerClass.packageName}."
+				
+                ant.replace(dir: "${coverageReportDir}",
+                        token: ">${nameToReplace}<",
+                        value: ">${controllerClass.name}.${propertyDescriptor.name}<") {
+                    include(name: "**/*${controllerClass.fullName}.html")
                     include(name: "frame-summary*.html")
                 }
             }
         }
     }
     def endTime = new Date().time
-    println "Post processed reports in ${endTime - startTime}ms"
-}
-
-target('exit':"override exit") { code ->
-    // Save the exit code.
-    testAppExitCode = code
+    println "Done with post processing reports in ${endTime - startTime}ms"
 }
 
 def flushCoverageData() {
@@ -166,7 +161,11 @@ def flushCoverageData() {
         def saveMethod = saveClass.getDeclaredMethod("saveGlobalProjectData", new Class[0])
         saveMethod.invoke(null,new Object[0]);
     } catch (Throwable t) {
+        println t
 		event("StatusFinal", ["Unable to flush Cobertura code coverage data."])
 		exit(1)
 	}
 }
+
+setDefaultTarget("testAppCobertura")
+
