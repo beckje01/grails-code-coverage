@@ -27,7 +27,7 @@ def testAppExitCode = 0
 dataFile = "cobertura.ser"
 
 target ('testAppCobertura': "Test App with Cobertura") {
-    depends(classpath, checkVersion, configureProxy, parseArguments)
+    depends(classpath, checkVersion, configureProxy, parseArguments, bootstrap)
 
     cleanup()
     packageApp()
@@ -129,7 +129,6 @@ target(coberturaReport:"Generate Cobertura Reports") {
 }
 
 target('replaceControllerClosureNamesInReports': 'replace controller closure class name with action name') {
-	depends(bootstrap)
     def startTime = new Date().time
     def controllers = grailsApp.controllerClasses
     controllers.each {controllerClass ->
