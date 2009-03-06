@@ -1,6 +1,6 @@
 
 class CodeCoverageGrailsPlugin {
-    def version = '1.1.3'
+    def version = '1.1.4'
 
 	def environments = ['test']
 	def scopes = [excludes:'war']
