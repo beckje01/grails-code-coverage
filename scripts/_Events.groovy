@@ -14,29 +14,35 @@ codeCoverageExclusionList = [
 
 
 eventTestPhasesStart = {
-    event("StatusUpdate", ["Instrumenting classes for coverage"])
+    if (!argsMap.nocoverage) {
+        event("StatusUpdate", ["Instrumenting classes for coverage"])
+        ant.delete(file: "${dataFile}")
 
-    ant.delete(file: "${dataFile}")
+        if (config.coverage.exclusionListOverride) {
+            codeCoverageExclusionList = config.coverage.exclusionListOverride
+        }
 
-    if (config.coverage.exclusionListOverride) {
-        codeCoverageExclusionList = config.coverage.exclusionListOverride
+        if (config.coverage.exclusions) {
+            codeCoverageExclusionList += config.coverage.exclusions
+        }
+
+        defineCoberturaPathAndTasks()
+        instrumentClasses()
     }
-
-    if (config.coverage.exclusions) {
-        codeCoverageExclusionList += config.coverage.exclusions
-    }
-
-    defineCoberturaPathAndTasks()
-    instrumentClasses()
 }
 
 eventTestPhasesEnd = {
-    defineCoberturaPathAndTasks()
-    flushReportData()
-    createCoverageReports()
-    replaceClosureNamesInReports()
+    if (!argsMap.nocoverage) {
+        defineCoberturaPathAndTasks()
+        flushReportData()
+        createCoverageReports()
+        replaceClosureNamesInReports()
 
-    event("StatusFinal", ["Cobertura Code Coverage Complete (view reports in: ${coverageReportDir})"])
+        //clear out the instrumented classes
+        cleanCompiledSources()
+
+        event("StatusFinal", ["Cobertura Code Coverage Complete (view reports in: ${coverageReportDir})"])
+    }
 }
 
 def createCoverageReports() {
@@ -80,7 +86,7 @@ def defineCoberturaPathAndTasks() {
 }
 
 def replaceClosureNamesInReports() {
-    if (!argsMap.nopost){
+    if (!argsMap.nopost) {
         def startTime = new Date().time
         replaceClosureNames(grailsApp?.controllerClasses)
         def endTime = new Date().time
@@ -109,8 +115,6 @@ def replaceClosureNames(artefacts) {
 }
 
 def instrumentClasses() {
-    cleanCompiledSources()
-    compile()
     try {
         ant.'cobertura-instrument'(datafile: "${dataFile}") {
             fileset(dir: classesDirPath) {
