@@ -18,8 +18,8 @@ eventTestPhasesStart = {
 
     ant.delete(file: "${dataFile}")
 
-    if (config.codeCoverageExclusionListOverride) {
-        codeCoverageExclusionList = config.codeCoverageExclusionListOverride
+    if (config.coverage.exclusionListOverride) {
+        codeCoverageExclusionList = config.coverage.exclusionListOverride
     }
 
     if (config.coverage.exclusions) {
