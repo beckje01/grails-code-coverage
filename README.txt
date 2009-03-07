@@ -56,7 +56,7 @@ grails test-app -nocoverage
 {code}
 
 h3. Configuration Options:
-You can add your own exclusions from the reports by adding an entry in your Config.groovy file like this:
+You can add your own exclusions from the reports by adding an entry in your BuildConfig.groovy file like this:
 
 {code}
 coverage {
@@ -107,7 +107,7 @@ coverage {
 }
 {code}
 
-In addition, you can add directories to the default list for source files to include in the coverage reports.  For example, if you're using the Jsecurity plugin and want to see the source for files in the 'realms' directory in the reports, add the following to your  Config.groovy:
+In addition, you can add directories to the default list for source files to include in the coverage reports.  For example, if you're using the Jsecurity plugin and want to see the source for files in the 'realms' directory in the reports, add the following to your BuildConfig.groovy:
 
 {code}
 coverage {
@@ -117,6 +117,8 @@ coverage {
 {code}
 
 h2. Release History:
+1.1.5
+* Change from using Config.groovy to BuildConfig.groovy to configure exclusions and custom properties
 1.1.4
 * support for Grails 1.1 RC2
 * upgraded to Cobertura 1.9

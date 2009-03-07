@@ -18,12 +18,12 @@ eventTestPhasesStart = {
         event("StatusUpdate", ["Instrumenting classes for coverage"])
         ant.delete(file: "${dataFile}")
 
-        if (config.coverage.exclusionListOverride) {
-            codeCoverageExclusionList = config.coverage.exclusionListOverride
+        if (buildConfig.coverage.exclusionListOverride) {
+            codeCoverageExclusionList = buildConfig.coverage.exclusionListOverride
         }
 
-        if (config.coverage.exclusions) {
-            codeCoverageExclusionList += config.coverage.exclusions
+        if (buildConfig.coverage.exclusions) {
+            codeCoverageExclusionList += buildConfig.coverage.exclusions
         }
 
         defineCoberturaPathAndTasks()
