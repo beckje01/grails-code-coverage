@@ -14,7 +14,7 @@ codeCoverageExclusionList = [
 
 
 eventTestPhasesStart = {
-    if (!argsMap.nocoverage) {
+    if (isCoverageEnabled()) {
         event("StatusUpdate", ["Instrumenting classes for coverage"])
         ant.delete(file: "${dataFile}")
 
@@ -32,7 +32,7 @@ eventTestPhasesStart = {
 }
 
 eventTestPhasesEnd = {
-    if (!argsMap.nocoverage) {
+    if (isCoverageEnabled()) {
         defineCoberturaPathAndTasks()
         flushReportData()
         createCoverageReports()
@@ -128,6 +128,16 @@ def instrumentClasses() {
     catch (Exception e) {
         event("StatusFinal", ["Error instrumenting classes: ${e.message}"])
         exit(1)
+    }
+}
+
+boolean isCoverageEnabled(){
+    if (argsMap.containsKey ('nocoverage')){
+        return false
+    } else if (argsMap.containsKey ('coverage')) {
+        return true
+    } else {
+        return buildConfig.coverage.enabledByDefault
     }
 }
 

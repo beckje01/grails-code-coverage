@@ -55,7 +55,20 @@ The default is to run coverage whenever tests are run, but there may be times yo
 grails test-app -nocoverage
 {code}
 
+To force coverage to run (if you have set the enabledByDefault flag to false; see config options for details) you can turn it back on for a single test run using the folling command line option:
+{code}
+grails test-app -coverage
+{code}
+
 h3. Configuration Options:
+
+If you want to disable coverage by default, you can set the enabledByDefault config attribute equal to false
+{code}
+coverage {
+	enabledByDefault = false
+}
+{code}
+
 You can add your own exclusions from the reports by adding an entry in your BuildConfig.groovy file like this:
 
 {code}
@@ -117,6 +130,8 @@ coverage {
 {code}
 
 h2. Release History:
+1.1.6
+* Added config and command line arguments to disable code coverage by default
 1.1.5
 * Change from using Config.groovy to BuildConfig.groovy to configure exclusions and custom properties
 1.1.4
