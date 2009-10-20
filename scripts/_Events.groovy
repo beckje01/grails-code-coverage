@@ -51,7 +51,7 @@ def createCoverageReports() {
     ant.mkdir(dir: "${coverageReportDir}")
 
     coverageReportFormats = ['html']
-    if (argsMap.xml) {
+    if (argsMap.xml || buildConfig.coverage.xml) {
         coverageReportFormats << 'xml'
     }
 
@@ -86,9 +86,10 @@ def defineCoberturaPathAndTasks() {
 }
 
 def replaceClosureNamesInReports() {
-    if (!argsMap.nopost) {
+    if (!argsMap.nopost || !buildConfig.coverage.noPost) {
         def startTime = new Date().time
         replaceClosureNames(grailsApp?.controllerClasses)
+        replaceClosureNamesInXmlReports(grailsApp?.controllerClasses)
         def endTime = new Date().time
         println "Done with post processing reports in ${endTime - startTime}ms"
     }
@@ -110,6 +111,30 @@ def replaceClosureNames(artefacts) {
                     include(name: "frame-summary*.html")
                 }
             }
+        }
+    }
+}
+
+def replaceClosureNamesInXmlReports(artefacts) {
+    def xml = new File("${coverageReportDir}/coverage.xml")
+    if(xml.exists()) {
+        def parser = new XmlParser().parse(xml)
+
+        artefacts?.each {artefact ->
+            def closures = [:]
+            artefact.reference.propertyDescriptors.each {propertyDescriptor ->
+                def closureClassName = artefact.getPropertyOrStaticPropertyOrFieldValue(propertyDescriptor.name, Closure)?.class?.name
+                if (closureClassName) {
+                    def node = parser['packages']['package']['classes']['class'].find {it.@name == closureClassName}
+                    if(node) {
+                        node.@name = "${artefact.fullName}.${propertyDescriptor.name}"
+                    }
+                }
+            }
+        }
+
+        xml.withPrintWriter {writer ->
+            new XmlNodePrinter(writer).print(parser)
         }
     }
 }
