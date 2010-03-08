@@ -66,8 +66,8 @@ def createCoverageReports() {
             fileset(dir: "${basedir}/grails-app/utils")
             fileset(dir: "${basedir}/src/groovy")
             fileset(dir: "${basedir}/src/java")
-            if (config.coverage?.sourceInclusions) {
-                config.coverage.sourceInclusions.each {
+            if (buildConfig.coverage?.sourceInclusions) {
+                buildConfig.coverage.sourceInclusions.each {
                     fileset(dir: "${basedir}/${it}")
                 }
             }
