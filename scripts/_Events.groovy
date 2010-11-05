@@ -1,8 +1,11 @@
 dataFile = "cobertura.ser"
 
+forkedJVMDebugPort = ''//'5005'
+
 codeCoverageExclusionList = [
         "**/*BootStrap*",
         "Config*",
+        "BuildConfig*",
         "**/*DataSource*",
         "**/*resources*",
         "**/*UrlMappings*",
@@ -76,13 +79,7 @@ def createCoverageReports() {
 }
 
 def defineCoberturaPathAndTasks() {
-    ant.path(id: "cobertura.classpath") {
-        fileset(dir: "${codeCoveragePluginDir}/lib") {
-            include(name: "*.jar")
-        }
-    }
-
-    ant.taskdef(classpathRef: 'cobertura.classpath', resource: "tasks.properties")
+    ant.taskdef(classpathRef: 'grails.test.classpath', resource: "tasks.properties")
 }
 
 def replaceClosureNamesInReports() {
@@ -117,7 +114,7 @@ def replaceClosureNames(artefacts) {
 
 def replaceClosureNamesInXmlReports(artefacts) {
     def xml = new File("${coverageReportDir}/coverage.xml")
-    if(xml.exists()) {
+    if (xml.exists()) {
         def parser = new XmlParser().parse(xml)
 
         artefacts?.each {artefact ->
@@ -126,7 +123,7 @@ def replaceClosureNamesInXmlReports(artefacts) {
                 def closureClassName = artefact.getPropertyOrStaticPropertyOrFieldValue(propertyDescriptor.name, Closure)?.class?.name
                 if (closureClassName) {
                     def node = parser['packages']['package']['classes']['class'].find {it.@name == closureClassName}
-                    if(node) {
+                    if (node) {
                         node.@name = "${artefact.fullName}.${propertyDescriptor.name}"
                     }
                 }
@@ -142,7 +139,7 @@ def replaceClosureNamesInXmlReports(artefacts) {
 def instrumentClasses() {
     try {
         ant.'cobertura-instrument'(datafile: "${dataFile}") {
-            fileset(dir: classesDirPath) {
+            fileset(dir: classesDir.absolutePath) {
                 include(name: "**/*.class")
                 codeCoverageExclusionList.each {pattern ->
                     exclude(name: pattern)
@@ -156,10 +153,10 @@ def instrumentClasses() {
     }
 }
 
-boolean isCoverageEnabled(){
-    if (argsMap.containsKey ('nocoverage')){
+boolean isCoverageEnabled() {
+    if (argsMap.containsKey('nocoverage')) {
         return false
-    } else if (argsMap.containsKey ('coverage')) {
+    } else if (argsMap.containsKey('coverage')) {
         return true
     } else {
         return buildConfig.coverage.enabledByDefault
