@@ -16,6 +16,15 @@ codeCoverageExclusionList = [
         "*GrailsPlugin*"]
 
 
+eventCreateWarStart = { warName, stagingDir ->
+	ant.delete(includeemptydirs:true){
+        fileset(dir: "$stagingDir"){
+			include(name:'**/code-coverage*/**')
+			include(name:'**/code-coverage*')
+		}
+	}
+}
+
 eventTestPhasesStart = {
     if (isCoverageEnabled()) {
         event("StatusUpdate", ["Instrumenting classes for coverage"])
