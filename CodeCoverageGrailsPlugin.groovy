@@ -1,6 +1,6 @@
 
 class CodeCoverageGrailsPlugin {
-    def version = '1.2'
+    def version = '1.2.1'
 	
 	def dependsOn = [core:'1.2 > *'] 
 	def author = "Mike Hugo"

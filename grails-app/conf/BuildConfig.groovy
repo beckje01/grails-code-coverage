@@ -26,7 +26,7 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
-        runtime 'net.sourceforge.cobertura:cobertura:1.9.4.1'
+        test 'net.sourceforge.cobertura:cobertura:1.9.4.1'
         // runtime 'mysql:mysql-connector-java:5.1.5'
     }
 }
