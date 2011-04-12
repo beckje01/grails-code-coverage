@@ -21,6 +21,7 @@ eventCreateWarStart = { warName, stagingDir ->
         fileset(dir: "$stagingDir"){
 			include(name:'**/code-coverage*/**')
 			include(name:'**/code-coverage*')
+			include(name:'**/CodeCoverageGrailsPlugin*')
 		}
 	}
 }
