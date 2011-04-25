@@ -17,13 +17,15 @@ codeCoverageExclusionList = [
 
 
 eventCreateWarStart = { warName, stagingDir ->
-	ant.delete(includeemptydirs:true){
-        fileset(dir: "$stagingDir"){
-			include(name:'**/code-coverage*/**')
-			include(name:'**/code-coverage*')
-			include(name:'**/CodeCoverageGrailsPlugin*')
-		}
-	}
+    ant.delete(includeemptydirs: true) {
+        fileset(dir: "$stagingDir") {
+            include(name: '**/code-coverage*/**')
+            include(name: '**/code-coverage*')
+            if (new File("$stagingDir/WEB-INF/classes/application.properties").text.indexOf('code-coverage') > 0) {
+                include(name: '**/CodeCoverageGrailsPlugin*')
+            }
+        }
+    }
 }
 
 eventTestPhasesStart = {
@@ -125,7 +127,9 @@ def replaceClosureNames(artefacts) {
 def replaceClosureNamesInXmlReports(artefacts) {
     def xml = new File("${coverageReportDir}/coverage.xml")
     if (xml.exists()) {
-        def parser = new XmlParser().parse(xml)
+        def p = new XmlParser()
+        p.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        def parser = p.parse(xml)
 
         artefacts?.each {artefact ->
             def closures = [:]
