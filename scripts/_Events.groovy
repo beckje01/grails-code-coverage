@@ -21,7 +21,7 @@ eventCreateWarStart = { warName, stagingDir ->
         fileset(dir: "$stagingDir") {
             include(name: '**/code-coverage*/**')
             include(name: '**/code-coverage*')
-            if (new File("$stagingDir/WEB-INF/classes/application.properties").text.indexOf('code-coverage') > 0) {
+            if (new File("$stagingDir/WEB-INF/classes/application.properties").text.indexOf('code-coverage') == -1) {
                 include(name: '**/CodeCoverageGrailsPlugin*')
             }
         }
