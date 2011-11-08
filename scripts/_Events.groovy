@@ -31,7 +31,12 @@ eventCreateWarStart = { warName, stagingDir ->
 eventTestPhasesStart = {
     if (isCoverageEnabled()) {
         event("StatusUpdate", ["Instrumenting classes for coverage"])
-        ant.delete(file: "${dataFile}")
+
+        if (isAppendCoverageResultsEnabled() && new File("${dataFile}").exists()) {
+            println "Appending coverage results to existing Cobertura ser file ${dataFile}."
+        } else {
+            ant.delete(file: "${dataFile}")
+        }
 
         if (buildConfig.coverage.exclusionListOverride) {
             codeCoverageExclusionList = buildConfig.coverage.exclusionListOverride
@@ -174,6 +179,16 @@ boolean isCoverageEnabled() {
         return true
     } else {
         return buildConfig.coverage.enabledByDefault
+    }
+}
+
+boolean isAppendCoverageResultsEnabled() {
+    if (argsMap.containsKey('noappend')) {
+        return false
+    } else if (argsMap.containsKey('append')) {
+        return true
+    } else {
+        return buildConfig.coverage.appendCoverageResults
     }
 }
 

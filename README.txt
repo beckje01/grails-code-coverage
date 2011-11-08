@@ -129,6 +129,21 @@ coverage {
 }
 {code}
 
+By default, the Grails Code Coverage plugin removes the cobertura.ser file, if it exists, at the start of the test phase. If you want to keep the coverage results from a previous set of tests, say, your unit tests, and add the coverage results from a separate run of integration tests, you can now append to the cobertura.ser file. The coverage results will be from the combined runs:
+
+{code}
+coverage {
+    appendCoverageResults = true // This may not be generally useful but is available as an option
+}
+{code}
+
+or from the command line, the following will create combined results for the unit and integration tests:
+
+{code}
+grails test-app :unit -coverage -xml
+grails test-app :integration -coverage -xml -append
+{code}
+
 h2. Release History:
 1.1.6
 * Added config and command line arguments to disable code coverage by default
