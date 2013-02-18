@@ -5,10 +5,13 @@ grails.project.test.reports.dir = "target/test-reports"
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
-        // uncomment to disable ehcache
+        // specify dependency exclusions here; for example, uncomment this to disable ehcache:
         // excludes 'ehcache'
     }
-    log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+    log "error" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+    checksums true // Whether to verify checksums on resolve
+    legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
+
     repositories {
         grailsPlugins()
         grailsHome()
@@ -26,7 +29,7 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
-        test 'net.sourceforge.cobertura:cobertura:1.9.4.1'
+        runtime 'net.sourceforge.cobertura:cobertura:1.9.4.1'
         // runtime 'mysql:mysql-connector-java:5.1.5'
     }
 }
