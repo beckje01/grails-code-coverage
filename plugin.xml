@@ -1,4 +1,4 @@
-<plugin name='code-coverage' version='1.2.5' grailsVersion='1.2 &gt; *'>
+<plugin name='code-coverage' version='1.2.6' grailsVersion='1.2 &gt; *'>
   <author>Mike Hugo</author>
   <authorEmail>mike@piragua.com</authorEmail>
   <title>Generates Code Coverage reports</title>
@@ -7,12 +7,20 @@
         Special thanks to Peter Ledbrook and Jeff Kunkle for contributions to this plugin.
 	</description>
   <documentation>http://grails.org/Test+Code+Coverage+Plugin</documentation>
-  <resources>
-    <resource>BuildConfig</resource>
-    <resource>UrlMappings</resource>
-  </resources>
+  <type>CodeCoverageGrailsPlugin</type>
+  <resources />
+  <repositories>
+    <repository name='grailsCentral' url='http://grails.org/plugins' />
+    <repository name='mavenCentral' url='http://repo1.maven.org/maven2/' />
+  </repositories>
   <dependencies>
-    <plugin name='core' version='1.2 &gt; *' />
+    <runtime>
+      <dependency group='net.sourceforge.cobertura' name='cobertura' version='1.9.4.1' />
+    </runtime>
   </dependencies>
+  <plugins />
+  <runtimePluginRequirements>
+    <plugin name='core' version='1.2 &gt; *' />
+  </runtimePluginRequirements>
   <behavior />
 </plugin>
