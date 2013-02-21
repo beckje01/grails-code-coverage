@@ -2,3 +2,5 @@
 *.iml
 target/*
 grails-code-coverage-*.zip
+grails-code-coverage-*.zip.sha1
+mavenInfo.groovy
