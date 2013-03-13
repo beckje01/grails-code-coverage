@@ -3,6 +3,10 @@ class CodeCoverageGrailsPlugin {
     def version = '1.2.6-SNAPSHOT'
 
 	def grailsVersion = '1.2 > *'
+
+	def pluginExcludes = [
+		"grails-app/conf/mavenInfo.groovy"
+	]
 	
 	def dependsOn = [core:'1.2 > *'] 
 	def author = "Mike Hugo"
