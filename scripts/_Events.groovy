@@ -1,3 +1,5 @@
+import org.codehaus.groovy.grails.commons.GrailsClassUtils
+
 dataFile = "cobertura.ser"
 
 forkedJVMDebugPort = ''//'5005'
@@ -111,8 +113,9 @@ def replaceClosureNamesInReports() {
 
 def replaceClosureNames(artefacts) {
     artefacts?.each {artefact ->
-        def closures = [:]
-        artefact.reference.propertyDescriptors.each {propertyDescriptor ->
+        artefact.reference.propertyDescriptors.findAll { descriptor ->
+            GrailsClassUtils.isGroovyAssignableFrom(Closure, descriptor.propertyType)
+        }.each {propertyDescriptor ->
             def closureClassName = artefact.getPropertyOrStaticPropertyOrFieldValue(propertyDescriptor.name, Closure)?.class?.name
             if (closureClassName) {
                 // the name in the reports is sans package; subtract the package name
@@ -137,8 +140,9 @@ def replaceClosureNamesInXmlReports(artefacts) {
         def parser = p.parse(xml)
 
         artefacts?.each {artefact ->
-            def closures = [:]
-            artefact.reference.propertyDescriptors.each {propertyDescriptor ->
+            artefact.reference.propertyDescriptors.findAll { descriptor ->
+                GrailsClassUtils.isGroovyAssignableFrom(Closure, descriptor.propertyType)
+            }.each {propertyDescriptor ->
                 def closureClassName = artefact.getPropertyOrStaticPropertyOrFieldValue(propertyDescriptor.name, Closure)?.class?.name
                 if (closureClassName) {
                     def node = parser['packages']['package']['classes']['class'].find {it.@name == closureClassName}
