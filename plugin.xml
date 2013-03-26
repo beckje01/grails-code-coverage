@@ -1,12 +1,9 @@
-<plugin name='code-coverage' version='1.2.6-SNAPSHOT' grailsVersion='1.2 &gt; *'>
-  <author>Mike Hugo</author>
-  <authorEmail>mike@piragua.com</authorEmail>
+<plugin name='code-coverage' version='1.2.6' grailsVersion='1.2 &gt; *'>
   <title>Generates Code Coverage reports</title>
-  <description>
-		Creates Code Coverage reports for your code.
-        Special thanks to Peter Ledbrook and Jeff Kunkle for contributions to this plugin.
+  <description>		Creates Code Coverage reports for your code.
+		Special thanks to Peter Ledbrook and Jeff Kunkle for contributions to this plugin.
 	</description>
-  <documentation>http://grails.org/Test+Code+Coverage+Plugin</documentation>
+  <documentation>https://github.com/beckje01/grails-code-coverage</documentation>
   <type>CodeCoverageGrailsPlugin</type>
   <resources />
   <repositories>
@@ -19,8 +16,6 @@
     </runtime>
   </dependencies>
   <plugins />
-  <runtimePluginRequirements>
-    <plugin name='core' version='1.2 &gt; *' />
-  </runtimePluginRequirements>
+  <runtimePluginRequirements />
   <behavior />
 </plugin>
