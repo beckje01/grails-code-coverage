@@ -1,4 +1,4 @@
-<plugin name='code-coverage' version='1.2.6-snapshot' grailsVersion='1.2 &gt; *'>
+<plugin name='code-coverage' version='1.2.6-SNAPSHOT' grailsVersion='1.2 &gt; *'>
   <author>Mike Hugo</author>
   <authorEmail>mike@piragua.com</authorEmail>
   <title>Generates Code Coverage reports</title>
@@ -8,9 +8,7 @@
 	</description>
   <documentation>http://grails.org/Test+Code+Coverage+Plugin</documentation>
   <type>CodeCoverageGrailsPlugin</type>
-  <resources>
-    <resource>mavenInfo</resource>
-  </resources>
+  <resources />
   <repositories>
     <repository name='grailsCentral' url='http://grails.org/plugins' />
     <repository name='mavenCentral' url='http://repo1.maven.org/maven2/' />
