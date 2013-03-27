@@ -12,7 +12,7 @@ class CodeCoverageGrailsPlugin {
       [ name: "Jeff Beck" ]
 	]
 
-	def title = "Generates Code Coverage reports"
+	def title = "Test Code Coverage Plugin"
 	def description = "Creates Code Coverage reports for your code"
 	def documentation = "https://github.com/beckje01/grails-code-coverage"
 	def license = "APACHE"
