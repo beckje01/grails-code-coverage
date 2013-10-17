@@ -81,13 +81,13 @@ def createCoverageReports() {
         ant.'cobertura-report'(destDir: "${coverageReportDir}", datafile: "${dataFile}", format: reportFormat) {
             //load all these dirs independently so the dir structure is flattened,
             //otherwise the source isn't found for the reports
-            fileset(dir: "${basedir}/grails-app/controllers")
-            fileset(dir: "${basedir}/grails-app/domain")
-            fileset(dir: "${basedir}/grails-app/services")
-            fileset(dir: "${basedir}/grails-app/taglib")
-            fileset(dir: "${basedir}/grails-app/utils")
-            fileset(dir: "${basedir}/src/groovy")
-            fileset(dir: "${basedir}/src/java")
+            fileset(dir: "${basedir}/grails-app/controllers", erroronmissingdir: false)
+            fileset(dir: "${basedir}/grails-app/domain", erroronmissingdir: false)
+            fileset(dir: "${basedir}/grails-app/services", erroronmissingdir: false)
+            fileset(dir: "${basedir}/grails-app/taglib", erroronmissingdir: false)
+            fileset(dir: "${basedir}/grails-app/utils", erroronmissingdir: false)
+            fileset(dir: "${basedir}/src/groovy", erroronmissingdir: false)
+            fileset(dir: "${basedir}/src/java", erroronmissingdir: false)
             if (buildConfig.coverage?.sourceInclusions) {
                 buildConfig.coverage.sourceInclusions.each {
                     fileset(dir: "${basedir}/${it}")
