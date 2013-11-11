@@ -136,6 +136,7 @@ def replaceClosureNamesInXmlReports(artefacts) {
     def xml = new File("${coverageReportDir}/coverage.xml")
     if (xml.exists()) {
         def p = new XmlParser()
+        p.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
         p.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
         def parser = p.parse(xml)
 
