@@ -104,8 +104,11 @@ def defineCoberturaPathAndTasks() {
 def replaceClosureNamesInReports() {
     if (!argsMap.nopost || !buildConfig.coverage.noPost) {
         def startTime = new Date().time
-        replaceClosureNames(grailsApp?.controllerClasses)
-        replaceClosureNamesInXmlReports(grailsApp?.controllerClasses)
+
+        def hasGrailsApp = hasProperty('grailsApp')
+
+        replaceClosureNames(hasGrailsApp ? grailsApp?.controllerClasses : null)
+        replaceClosureNamesInXmlReports(hasGrailsApp ? grailsApp?.controllerClasses : null)
         def endTime = new Date().time
         println "Done with post processing reports in ${endTime - startTime}ms"
     }
