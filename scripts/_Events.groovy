@@ -15,7 +15,8 @@ codeCoverageExclusionList = [
         "**/grails/test/**",
         "**/org/codehaus/groovy/grails/**",
         "**/PreInit*",
-        "*GrailsPlugin*"]
+        "*GrailsPlugin*",
+        ".DS_Store"]
 
 
 eventCreateWarStart = { warName, stagingDir ->

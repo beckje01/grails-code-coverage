@@ -14,7 +14,7 @@ grails.project.dependency.resolution = {
 	}
 
 	dependencies {
-		runtime 'net.sourceforge.cobertura:cobertura:1.9.4.1', {
+		runtime 'net.sourceforge.cobertura:cobertura:2.0.3', {
 			excludes 'ant', 'log4j'
 		}
 //		runtime 'xml-apis:xml-apis:2.0.2'
