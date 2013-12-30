@@ -146,3 +146,7 @@ or from the command line, the following will create combined results for the uni
   * fixed a bug where project specific exclusions were not being loaded correctly
 
 
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/beckje01/grails-code-coverage/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
