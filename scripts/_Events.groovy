@@ -1,8 +1,10 @@
+import groovy.xml.MarkupBuilder
+import org.apache.tools.ant.types.Path
 import org.codehaus.groovy.grails.commons.GrailsClassUtils
 
 dataFile = "cobertura.ser"
 
-forkedJVMDebugPort = ''//'5005'
+forkedJVMDebugPort = 0//'5005'
 
 codeCoverageExclusionList = [
         "**/*BootStrap*",
@@ -164,19 +166,34 @@ def replaceClosureNamesInXmlReports(artefacts) {
 }
 
 def instrumentClasses() {
-    try {
-        ant.'cobertura-instrument'(datafile: "${dataFile}") {
-            fileset(dir: classesDir.absolutePath) {
-                include(name: "**/*.class")
-                codeCoverageExclusionList.each {pattern ->
-                    exclude(name: pattern)
-                }
-            }
-        }
+    String coverageClasspath = createCoverageClasspath()
+
+    String antBuildfileContent = new AntInstrumentationBuildfileBuilder()
+            .setDataFile(dataFile)
+            .setForkedJVMDebugPort(forkedJVMDebugPort)
+            .setCoverageClasspath(coverageClasspath)
+            .setClassesDir(classesDir)
+            .setCodeCoverageExclusionList(codeCoverageExclusionList)
+            .build()
+
+    File instrumentBuildFile = File.createTempFile('instrument-build-', '.xml')
+
+    instrumentBuildFile.withWriter('UTF-8') { Writer writer ->
+        writer.write(antBuildfileContent)
     }
-    catch (Exception e) {
+
+    try {
+        ant.java(fork: 'true', classname: 'org.apache.tools.ant.launch.Launcher', classpath: "${coverageClasspath}") {
+            arg(value: '-buildfile')
+            arg(file: "${instrumentBuildFile.canonicalPath}")
+        }
+    } catch (Exception e) {
         event("StatusFinal", ["Error instrumenting classes: ${e.message}"])
         exit(1)
+    } finally {
+        if (instrumentBuildFile) {
+            instrumentBuildFile.delete()
+        }
     }
 }
 
@@ -212,5 +229,119 @@ This usually happens when tests don't actually test anything;
 e.g. none of the instrumented classes were exercised by tests!
 --------------------------------------------
 """])
+    }
+}
+
+/**
+ * @return Grails test classpath with ASM 3.Y.X removed
+ */
+String createCoverageClasspath() {
+    String pathSeparator = System.getProperty('path.separator')
+    String fileSeparator = System.getProperty('file.separator')
+    String separator = "\\${fileSeparator}"
+    String pattern = "^.*?${separator}asm${separator}asm${separator}3\\..*?${separator}asm-3\\..*?\\.jar\$"
+
+    List<String> classpathEntries = []
+
+    Path grailsTestClasspath = ant.path(id: 'coverage.classpath') {
+        ant.path(refid: 'grails.test.classpath')
+    }
+
+    grailsTestClasspath.toString().split(pathSeparator).each { String classpathEntry ->
+        if (classpathEntry =~ pattern) {
+            println """INFO: Found ASM 3: ${classpathEntry}. 
+      Possibly because grails-core (grails-plugin-databinding) uses it. 
+      Removing from instrumentation classpath!"""
+        } else {
+            classpathEntries << classpathEntry
+        }
+    }
+
+    return classpathEntries.join(pathSeparator)
+}
+
+/**
+ * This is a simple builder for creating an Ant build file for Instrumentation.
+ * It has to be a separate class, otherwise the StreamingMarkupBuilder
+ * (or the MarkupBuilder) will not add the 'target' element to the build file,
+ * as target is a valid method call in a Gant script (as it is also an Ant build file).
+ */
+class AntInstrumentationBuildfileBuilder {
+
+    String dataFile
+
+    int forkedJVMDebugPort
+
+    String coverageClasspath
+
+    File classesDir
+
+    List<String> codeCoverageExclusionList
+
+    public AntInstrumentationBuildfileBuilder setDataFile(String dataFile) {
+        this.dataFile = dataFile
+
+        return this
+    }
+
+    public AntInstrumentationBuildfileBuilder setForkedJVMDebugPort(int forkedJVMDebugPort) {
+        this.forkedJVMDebugPort = forkedJVMDebugPort
+
+        return this
+    }
+
+    public AntInstrumentationBuildfileBuilder setCoverageClasspath(String coverageClasspath) {
+        this.coverageClasspath = coverageClasspath
+
+        return this
+    }
+
+    public AntInstrumentationBuildfileBuilder setClassesDir(File classesDir) {
+        this.classesDir = classesDir
+
+        return this
+    }
+
+    public AntInstrumentationBuildfileBuilder setCodeCoverageExclusionList(codeCoverageExclusionList) {
+        this.codeCoverageExclusionList = codeCoverageExclusionList
+
+        return this
+    }
+
+    public String build() {
+        StringWriter writer = new StringWriter()
+        MarkupBuilder builder = new MarkupBuilder(writer)
+        builder.useDoubleQuotes = true
+
+        String pathSeparator = System.getProperty('path.separator')
+
+        Map<String, String> instrumentArguments = [:]
+
+        instrumentArguments['datafile'] = "${dataFile}"
+
+        if (forkedJVMDebugPort > 0) {
+            instrumentArguments['forkedJVMDebugPort'] = "${forkedJVMDebugPort}"
+        }
+
+        builder.'project'(basedir: '.', default: 'instrument', name: 'instrument') {
+            'path'(id: 'instrument.path') {
+                coverageClasspath.split(pathSeparator).each { String library ->
+                    'pathelement'(location: "${library}")
+                }
+            }
+            'taskdef'(classpathRef: 'instrument.path', resource: 'tasks.properties')
+            'target'(name: 'instrument') {
+                'cobertura-instrument'(instrumentArguments) {
+                    'fileset'(dir: "${classesDir.absolutePath}") {
+                        'include'(name: "**/*.class")
+                        codeCoverageExclusionList.each { pattern ->
+                            'exclude'(name: "${pattern}")
+                        }
+                    }
+                }
+            }
+        }
+
+        return writer.toString()
     }
 }
