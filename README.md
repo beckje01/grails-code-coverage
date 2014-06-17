@@ -1,3 +1,6 @@
+[![Project Status](http://stillmaintained.com/beckje01/grails-code-coverage.png)](http://stillmaintained.com/beckje01/grails-code-coverage)
+
+
 # Test Code Coverage Plugin
 
 This plugin will generate code coverage reports using Cobertura.
