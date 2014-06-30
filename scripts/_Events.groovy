@@ -224,7 +224,7 @@ def flushReportData() {
         event("StatusError", ["""
 --------------------------------------------
 ***********WARNING*************
-Unable to flush code coverage data.  
+Unable to flush code coverage data.
 This usually happens when tests don't actually test anything;
 e.g. none of the instrumented classes were exercised by tests!
 --------------------------------------------
@@ -239,7 +239,7 @@ String createCoverageClasspath() {
     String pathSeparator = System.getProperty('path.separator')
     String fileSeparator = System.getProperty('file.separator')
     String separator = "\\${fileSeparator}"
-    String pattern = "^.*?${separator}asm${separator}asm${separator}3\\..*?${separator}asm-3\\..*?\\.jar\$"
+    String pattern = "^.*?${separator}asm${separator}asm-?.*${separator}3\\..*?${separator}asm-?.*-3\\..*?\\.jar\$"
 
     List<String> classpathEntries = []
 
@@ -248,9 +248,9 @@ String createCoverageClasspath() {
     }
 
     grailsTestClasspath.toString().split(pathSeparator).each { String classpathEntry ->
-        if (classpathEntry =~ pattern) {
-            println """INFO: Found ASM 3: ${classpathEntry}. 
-      Possibly because grails-core (grails-plugin-databinding) uses it. 
+        if (classpathEntry ==~ pattern) {
+            println """INFO: Found ASM 3: ${classpathEntry}.
+      Possibly because grails-core (grails-plugin-databinding) uses it.
       Removing from instrumentation classpath!"""
         } else {
             classpathEntries << classpathEntry
