@@ -7,7 +7,7 @@ This plugin will generate code coverage reports using Cobertura.
 
 ## To run:
 
-    grails test-app
+    grails test-app -coverage
 
 
 ## Command line options:
