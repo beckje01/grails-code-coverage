@@ -1,4 +1,4 @@
-grails.project.work.dir = 'target'
+    grails.project.work.dir = 'target'
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
@@ -28,6 +28,7 @@ grails.project.dependency.resolution = {
         }
         runtime 'xerces:xercesImpl:2.11.0'
         runtime 'xalan:xalan:2.7.1'
+        runtime 'org.apache.ant:ant:1.8.4'
     }
 
     plugins {
