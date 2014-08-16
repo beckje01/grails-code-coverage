@@ -79,7 +79,7 @@ def createCoverageReports() {
         coverageReportFormats << 'xml'
     }
 
-    coverageReportFormats.each {reportFormat ->
+    coverageReportFormats.each { reportFormat ->
         ant.'cobertura-report'(destDir: "${coverageReportDir}", datafile: "${dataFile}", format: reportFormat) {
             //load all these dirs independently so the dir structure is flattened,
             //otherwise the source isn't found for the reports
@@ -117,10 +117,10 @@ def replaceClosureNamesInReports() {
 }
 
 def replaceClosureNames(artefacts) {
-    artefacts?.each {artefact ->
+    artefacts?.each { artefact ->
         artefact.reference.propertyDescriptors.findAll { descriptor ->
             GrailsClassUtils.isGroovyAssignableFrom(Closure, descriptor.propertyType)
-        }.each {propertyDescriptor ->
+        }.each { propertyDescriptor ->
             def closureClassName = artefact.getPropertyOrStaticPropertyOrFieldValue(propertyDescriptor.name, Closure)?.class?.name
             if (closureClassName) {
                 // the name in the reports is sans package; subtract the package name
@@ -145,13 +145,13 @@ def replaceClosureNamesInXmlReports(artefacts) {
         p.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
         def parser = p.parse(xml)
 
-        artefacts?.each {artefact ->
+        artefacts?.each { artefact ->
             artefact.reference.propertyDescriptors.findAll { descriptor ->
                 GrailsClassUtils.isGroovyAssignableFrom(Closure, descriptor.propertyType)
-            }.each {propertyDescriptor ->
+            }.each { propertyDescriptor ->
                 def closureClassName = artefact.getPropertyOrStaticPropertyOrFieldValue(propertyDescriptor.name, Closure)?.class?.name
                 if (closureClassName) {
-                    def node = parser['packages']['package']['classes']['class'].find {it.@name == closureClassName}
+                    def node = parser['packages']['package']['classes']['class'].find { it.@name == closureClassName }
                     if (node) {
                         node.@name = "${artefact.fullName}.${propertyDescriptor.name}"
                     }
@@ -159,7 +159,7 @@ def replaceClosureNamesInXmlReports(artefacts) {
             }
         }
 
-        xml.withPrintWriter {writer ->
+        xml.withPrintWriter { writer ->
             new XmlNodePrinter(writer).print(parser)
         }
     }
@@ -240,6 +240,7 @@ String createCoverageClasspath() {
     String fileSeparator = System.getProperty('file.separator')
     String separator = "\\${fileSeparator}"
     String pattern = "^.*?${separator}asm${separator}asm-?.*${separator}3\\..*?${separator}asm-?.*-3\\..*?\\.jar\$"
+    String includedJarPattern = "^.*?${separator}asm${separator}asm-?.*${separator}jars${separator}asm-?.*-3\\..*?\\.jar\$"
 
     List<String> classpathEntries = []
 
@@ -248,7 +249,8 @@ String createCoverageClasspath() {
     }
 
     grailsTestClasspath.toString().split(pathSeparator).each { String classpathEntry ->
-        if (classpathEntry ==~ pattern) {
+//        event("StatusUpdate", ["Checking classpathEntry $classpathEntry for ASM"])
+        if (classpathEntry ==~ pattern || classpathEntry ==~ includedJarPattern ) {
             println """INFO: Found ASM 3: ${classpathEntry}.
       Possibly because grails-core (grails-plugin-databinding) uses it.
       Removing from instrumentation classpath!"""
