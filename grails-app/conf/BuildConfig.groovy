@@ -28,6 +28,7 @@ grails.project.dependency.resolution = {
         }
         runtime 'xerces:xercesImpl:2.11.0'
         runtime 'xalan:xalan:2.7.1'
+        runtime 'org.apache.ant:ant:1.8.4'
     }
 
     plugins {
