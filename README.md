@@ -122,6 +122,7 @@ or from the command line, the following will create combined results for the uni
 * [Noam Y. Tenne](https://github.com/noamt)
 * [Rubén](https://github.com/armeris)
 * [Marcos Carceles](https://github.com/marcos-carceles)
+* [genuinefafa](https://github.com/genuinefafa)
 
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/beckje01/grails-code-coverage/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
