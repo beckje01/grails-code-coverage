@@ -2,7 +2,7 @@ import groovy.xml.MarkupBuilder
 import org.apache.tools.ant.types.Path
 import org.codehaus.groovy.grails.commons.GrailsClassUtils
 
-dataFile = "cobertura.ser"
+dataFile = System.properties["net.sourceforge.cobertura.datafile"] ?: "${basedir}/cobertura.ser"
 
 forkedJVMDebugPort = 0//'5005'
 
