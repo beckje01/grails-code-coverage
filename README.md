@@ -31,6 +31,11 @@ To force coverage to run (if you have set the enabledByDefault flag to false; se
     grails test-app -coverage
 
 
+The script will place the cobertura.ser file in the project base directory by default. You can override this location with the system property net.sourceforge.cobertura.datafile:
+
+    grails test-app -coverage -Dnet.sourceforge.cobertura.datafile=/some/other/path
+
+
 ## Configuration Options:
 
 If you want to disable coverage by default, you can set the enabledByDefault config attribute equal to false
@@ -123,6 +128,7 @@ or from the command line, the following will create combined results for the uni
 * [Rubén](https://github.com/armeris)
 * [Marcos Carceles](https://github.com/marcos-carceles)
 * [genuinefafa](https://github.com/genuinefafa)
+* [Steve Hendrix](https://github.com/shendrix)
 
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/beckje01/grails-code-coverage/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
