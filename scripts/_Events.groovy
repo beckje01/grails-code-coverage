@@ -345,7 +345,7 @@ class AntInstrumentationBuildfileBuilder {
             }
         }
 
-        println "Using Cobertura with settings:\n ${writer.toString()}"
+        //println "Using Cobertura with settings:\n ${writer.toString()}"
         return writer.toString()
     }
 }
