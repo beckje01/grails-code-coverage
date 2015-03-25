@@ -340,10 +340,12 @@ class AntInstrumentationBuildfileBuilder {
                             'exclude'(name: "${pattern}")
                         }
                     }
+                    'ignoreMethodAnnotation'(annotationName: "net.sourceforge.cobertura.CoverageIgnore")
                 }
             }
         }
 
+        println "Using Cobertura with settings:\n ${writer.toString()}"
         return writer.toString()
     }
 }
