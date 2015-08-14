@@ -1,5 +1,5 @@
 class CodeCoverageGrailsPlugin {
-	def version = '2.0.3-3'
+	def version = '2.0.3-4'
 
 	def grailsVersion = '1.3 > *'
 
