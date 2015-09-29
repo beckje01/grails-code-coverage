@@ -4,6 +4,9 @@ import org.codehaus.groovy.grails.commons.GrailsClassUtils
 
 dataFile = System.properties["net.sourceforge.cobertura.datafile"] ?: "${basedir}/cobertura.ser"
 
+pluginClassesPath = "${projectWorkDir}${File.separatorChar}plugin-classes"
+
+
 forkedJVMDebugPort = 0//'5005'
 
 codeCoverageExclusionList = [
@@ -95,6 +98,25 @@ def createCoverageReports() {
                     fileset(dir: "${basedir}/${it}")
                 }
             }
+
+
+            if (buildConfig.coverage?.inlineGrailsPluginsPathsToIncludeInReporting) {
+
+                for( pluginRelativeDir in buildConfig.coverage?.inlineGrailsPluginsPathsToIncludeInReporting ) {
+
+                    fileset(dir: "${basedir}/${pluginRelativeDir}/grails-app/controllers", erroronmissingdir: false)
+                    fileset(dir: "${basedir}/${pluginRelativeDir}/grails-app/domain", erroronmissingdir: false)
+                    fileset(dir: "${basedir}/${pluginRelativeDir}/grails-app/services", erroronmissingdir: false)
+                    fileset(dir: "${basedir}/${pluginRelativeDir}/grails-app/taglib", erroronmissingdir: false)
+                    fileset(dir: "${basedir}/${pluginRelativeDir}/grails-app/utils", erroronmissingdir: false)
+                    fileset(dir: "${basedir}/${pluginRelativeDir}/src/groovy", erroronmissingdir: false)
+                    fileset(dir: "${basedir}/${pluginRelativeDir}/src/java", erroronmissingdir: false)
+
+                }
+
+            }
+
+
         }
     }
 }
@@ -173,6 +195,8 @@ def instrumentClasses() {
             .setForkedJVMDebugPort(forkedJVMDebugPort)
             .setCoverageClasspath(coverageClasspath)
             .setClassesDir(classesDir)
+            .setPluginClassesDir( new File(pluginClassesPath) )
+            .setCodeCoveragePluginInclusionList(buildConfig.coverage.coveragePluginPackagesInclusionList ?: [])
             .setCodeCoverageExclusionList(codeCoverageExclusionList)
             .build()
 
@@ -277,11 +301,19 @@ class AntInstrumentationBuildfileBuilder {
     String coverageClasspath
 
     File classesDir
+    File pluginClassesDir
 
-    List<String> codeCoverageExclusionList
+    List<String> codeCoverageExclusionList, coveragePluginPackagesInclusionList
 
     public AntInstrumentationBuildfileBuilder setDataFile(String dataFile) {
         this.dataFile = dataFile
+
+        return this
+    }
+
+    public AntInstrumentationBuildfileBuilder setPluginClassesDir(File pluginClassesDir) {
+
+        this.pluginClassesDir = pluginClassesDir
 
         return this
     }
@@ -310,7 +342,16 @@ class AntInstrumentationBuildfileBuilder {
         return this
     }
 
+    public AntInstrumentationBuildfileBuilder setCodeCoveragePluginInclusionList(coveragePluginPackagesInclusionList) {
+        this.coveragePluginPackagesInclusionList = coveragePluginPackagesInclusionList
+
+        return this
+    }
+
+
+
     public String build() {
+
         StringWriter writer = new StringWriter()
         MarkupBuilder builder = new MarkupBuilder(writer)
         builder.useDoubleQuotes = true
@@ -334,14 +375,27 @@ class AntInstrumentationBuildfileBuilder {
             'taskdef'(classpathRef: 'instrument.path', resource: 'tasks.properties')
             'target'(name: 'instrument') {
                 'cobertura-instrument'(instrumentArguments) {
+
                     'fileset'(dir: "${classesDir.absolutePath}") {
                         'include'(name: "**/*.class")
                         codeCoverageExclusionList.each { pattern ->
                             'exclude'(name: "${pattern}")
                         }
                     }
+
+                    'fileset'(dir: "${pluginClassesDir.absolutePath}") {
+
+                        coveragePluginPackagesInclusionList.each { pattern ->
+                            'include'(name: "${pattern}/**/*.class")
+                        }
+
+                        codeCoverageExclusionList.each { pattern ->
+                            'exclude'(name: "${pattern}")
+                        }
+                    }
                 }
             }
+
         }
 
         return writer.toString()
